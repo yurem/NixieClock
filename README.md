@@ -1,5 +1,13 @@
 # <p align="center">Страница проекта [NixieClock](https://community.alexgyver.ru/threads/chasy-na-gri-v2-alternativnaja-proshivka.5843/) на форуме.</p> 
 
+## В этом варианте прошивки добавлена поддерджка PCF8591б
+
+Поддержка PCF8591б дает возможность использовать 4 дополнительных аналоговых порта ввода и один порт вывода.
+Схема использования:
+![image](https://user-images.githubusercontent.com/6104200/214011320-7c9eaa65-a632-4347-8d40-80d29ad78eb0.png)
+
+
+
 ![Sheet_2](https://user-images.githubusercontent.com/71728333/174530369-60ad7431-a8fc-4c99-abe0-559c530fc2a1.png)
 
 Для более точной работы часов желательно подключить пин SQW модуля DS3231 к пину ардуино D2, если у вас модуль DS3231mini, то необходимо найти 3-ю ножку микросхемы и также проводком подпаять к пину D2.
