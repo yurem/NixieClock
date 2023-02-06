@@ -240,6 +240,9 @@ uint16_t buzz_time; //циклы полуволны для работы пища
 
 #define ADD_CHK buttonCheckADC(ADD_MIN_ADC, ADD_MAX_ADC) //чтение правой аналоговой кнопки
 #endif
+#if (BTN_ADD_TYPE == 3)
+#define ADD_CHK       (((uint8_t *)&analogInputChannelsPCF)[1] < 0x80) // при нажатой кнопке значение ны выходе 207, при отжатой - 0-1, поэтому сраниваем со значение в диапазоне от 1-207
+#endif
 #endif
 
 //перечисления меню настроек
@@ -1675,9 +1678,11 @@ void checkPCF8591() // проверка PCF8591
     SET_ERROR(PCF8591_ERROR);
   }
 
+#if TRUE
   if (!readAnalogInputChannelsPCF()) {
     SET_ERROR(PCF8591_ERROR);
   };
+#endif
 }
 //--------------------------------Генерация частот бузера----------------------------------------------
 void buzz_pulse(uint16_t freq, uint16_t time) //генерация частоты бузера (частота 10..10000, длительность мс.)

@@ -1,12 +1,7 @@
 #define PCF8591_ADDR 0x48       //адрес датчика
 
-#define PCF8591_SINGLE_ENDED_INPUT      0x00
 #define PCF8591_OUTPUT_MASK             0b01000000
 #define PCF8591_INCR_FLAG               0x04
-
-#if (BTN_ADD_TYPE == 3)
-#define ADD_CHK       (((uint8_t *)&analogInputChannelsPCF)[2] < 0x80) // при нажатой кнопке значение ны выходе 207, при отжатой - 0-1, поэтому сраниваем со значение в диапазоне от 1-207
-#endif
 
 #define LIGTH_VALUE   (((uint8_t *)&analogInputChannelsPCF)[3]) // значени от 0 до 255, где большее значение - выше яркость
 
@@ -27,9 +22,8 @@ bool isConnectedPCF() //проверка подключения чтение PCF
   return 1;
 }
 //-------------------------------------- Чтение значений 4-х портов PCF8591 -----------------------------
-bool readAnalogInputChannelsPCFImpl(void) //чтение аналоговых портов ввода
-{
-  uint8_t control = PCF8591_OUTPUT_MASK | PCF8591_INCR_FLAG | PCF8591_SINGLE_ENDED_INPUT;
+bool readAnalogInputChannelsPCF(void) { //чтение аналоговых портов ввода
+  uint8_t control = PCF8591_OUTPUT_MASK | PCF8591_INCR_FLAG;
 
   if (wireBeginTransmission(PCF8591_ADDR)) return 0;
   wireWrite(control);
@@ -49,8 +43,14 @@ bool readAnalogInputChannelsPCFImpl(void) //чтение аналоговых п
 
   return 1;
 }
-bool readAnalogInputChannelsPCF(void) { //чтение аналоговых портов ввода
-  bool res = readAnalogInputChannelsPCFImpl();
+//--------------------------------------  запись значения аналогового вывода PCF8591 --------------------
+bool writeAnalogPCF(uint8_t value) { //чтение аналоговых портов ввода
+  uint8_t control = PCF8591_OUTPUT_MASK;
 
-  return res;
+  if (wireBeginTransmission(PCF8591_ADDR)) return 0;
+  wireWrite(control);
+  wireWrite(value);
+  wireEnd();
+
+  return 1;
 }
