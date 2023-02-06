@@ -285,4 +285,4 @@ const uint16_t general_sound[][2] PROGMEM = {
 #define PCF8591_UPDATE_TIME 100        //таймаут обновления PCF8591 (мс)
 
 //Версия прошивки
-#define FIRMWARE_VERSION "1.8.7"     //версия прошивки для отображения и озвучки
+#define FIRMWARE_VERSION "1.8.8"     //версия прошивки для отображения и озвучки
