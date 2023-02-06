@@ -1,0 +1,100 @@
+diff --git a/NixieClock/NixieClock.ino b/NixieClock/NixieClock.ino
+index 2a4e16d..3c3396f 100644
+--- a/NixieClock/NixieClock.ino
++++ b/NixieClock/NixieClock.ino
+@@ -240,6 +240,9 @@ uint16_t buzz_time; //циклы полуволны для работы пища
+ 
+ #define ADD_CHK buttonCheckADC(ADD_MIN_ADC, ADD_MAX_ADC) //чтение правой аналоговой кнопки
+ #endif
++#if (BTN_ADD_TYPE == 3)
++#define ADD_CHK       (((uint8_t *)&analogInputChannelsPCF)[1] < 0x80) // при нажатой кнопке значение ны выходе 207, при отжатой - 0-1, поэтому сраниваем со значение в диапазоне от 1-207
++#endif
+ #endif
+ 
+ //перечисления меню настроек
+@@ -1675,9 +1678,11 @@ void checkPCF8591() // проверка PCF8591
+     SET_ERROR(PCF8591_ERROR);
+   }
+ 
++#if TRUE
+   if (!readAnalogInputChannelsPCF()) {
+     SET_ERROR(PCF8591_ERROR);
+   };
++#endif
+ }
+ //--------------------------------Генерация частот бузера----------------------------------------------
+ void buzz_pulse(uint16_t freq, uint16_t time) //генерация частоты бузера (частота 10..10000, длительность мс.)
+diff --git a/NixieClock/PCF8591.h b/NixieClock/PCF8591.h
+index 37273ad..62258fa 100644
+--- a/NixieClock/PCF8591.h
++++ b/NixieClock/PCF8591.h
+@@ -1,13 +1,8 @@
+ #define PCF8591_ADDR 0x48       //адрес датчика
+ 
+-#define PCF8591_SINGLE_ENDED_INPUT      0x00
+ #define PCF8591_OUTPUT_MASK             0b01000000
+ #define PCF8591_INCR_FLAG               0x04
+ 
+-#if (BTN_ADD_TYPE == 3)
+-#define ADD_CHK       (((uint8_t *)&analogInputChannelsPCF)[2] < 0x80) // при нажатой кнопке значение ны выходе 207, при отжатой - 0-1, поэтому сраниваем со значение в диапазоне от 1-207
+-#endif
+-
+ #define LIGTH_VALUE   (((uint8_t *)&analogInputChannelsPCF)[3]) // значени от 0 до 255, где большее значение - выше яркость
+ 
+ // Структура данных для хранения последних прочитанных значений
+@@ -27,9 +22,8 @@ bool isConnectedPCF() //проверка подключения чтение PCF
+   return 1;
+ }
+ //-------------------------------------- Чтение значений 4-х портов PCF8591 -----------------------------
+-bool readAnalogInputChannelsPCFImpl(void) //чтение аналоговых портов ввода
+-{
+-  uint8_t control = PCF8591_OUTPUT_MASK | PCF8591_INCR_FLAG | PCF8591_SINGLE_ENDED_INPUT;
++bool readAnalogInputChannelsPCF(void) { //чтение аналоговых портов ввода
++  uint8_t control = PCF8591_OUTPUT_MASK | PCF8591_INCR_FLAG;
+ 
+   if (wireBeginTransmission(PCF8591_ADDR)) return 0;
+   wireWrite(control);
+@@ -49,8 +43,14 @@ bool readAnalogInputChannelsPCFImpl(void) //чтение аналоговых п
+ 
+   return 1;
+ }
+-bool readAnalogInputChannelsPCF(void) { //чтение аналоговых портов ввода
+-  bool res = readAnalogInputChannelsPCFImpl();
++//--------------------------------------  запись значения аналогового вывода PCF8591 --------------------
++bool writeAnalogPCF(uint8_t value) { //чтение аналоговых портов ввода
++  uint8_t control = PCF8591_OUTPUT_MASK;
+ 
+-  return res;
++  if (wireBeginTransmission(PCF8591_ADDR)) return 0;
++  wireWrite(control);
++  wireWrite(value);
++  wireEnd();
++
++  return 1;
+ }
+diff --git a/NixieClock/connection.h b/NixieClock/connection.h
+index 8894b1d..a92d0d3 100644
+--- a/NixieClock/connection.h
++++ b/NixieClock/connection.h
+@@ -32,7 +32,7 @@
+ #define DOTR_PIN 1  //пин правых(дополнительных) разделительных точек в индикаторах(0..13)(pin D)
+ #define SENS_PIN 13  //пин сенсора температуры(для DS18xx и DHTxx)(0..13)(pin D)
+ #define SQW_PIN  2  //пин SQW(только пин 2)(pin D)
+-#define AMP_PIN  8  //пин управления питанием усилителя(0..13)(pin D)
++#define AMP_PIN  0  //пин управления питанием усилителя(0..13)(pin D)
+ #define MOV_PIN  8  //пин датчика движения(0..13)(pin D)
+ #define IR_PIN   7  //пин инфракрасного приемника(0..13)(pin D)
+ 
+diff --git a/NixieClock/userConfig.h b/NixieClock/userConfig.h
+index 471e502..68b8bdf 100644
+--- a/NixieClock/userConfig.h
++++ b/NixieClock/userConfig.h
+@@ -10,7 +10,7 @@
+ #define PLAYER_UART_MODE 0        //режим работы UART DF плеера(0 - хардверный UART(только D1) | 1 - софтверный UART(любой пин)(только если адресные светодиоды или софтовый шим подсветки))
+ 
+ //Настройки усилителя
+-#define AMP_PORT_ENABLE 0         //включить использование порта управления питанием усилителя(0 - порт не используется | 1 - порт используется)
++#define AMP_PORT_ENABLE 1         //включить использование порта управления питанием усилителя(0 - порт не используется | 1 - порт используется)
+ #define AMP_POWER_MODE 1          //режим управления питанием усилителя(0 - низкий уровень | 1 - высокий уровень)
+ #define AMP_WAIT_TIME 100         //время ожидания активации усилителя(10..150)(мс)
+ 
