@@ -34,7 +34,7 @@
 #define SQW_PIN  2  //пин SQW(только пин 2)(pin D)
 #define AMP_PIN  0  //пин управления питанием усилителя(0..13)(pin D)
 #define MOV_PIN  8  //пин датчика движения(0..13)(pin D)
-#define IR_PIN   7  //пин инфракрасного приемника(0..13)(pin D)
+#define IR_PIN   11  //пин инфракрасного приемника(0..13)(pin D)
 
 //DF плеер
 #define DF_RX_PIN   1  //пин DF плеера RX(софтверный UART - 0..13 | хардверный UART - 1)(pin D)
