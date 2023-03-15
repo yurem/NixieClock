@@ -18,9 +18,15 @@
 #define RESET_WDT __asm__ __volatile__ ("WDR") //сброс WDT
 
 #if WIRE_PULL
-#define INDI_NULL ((0x01 << DECODER_2) | (0x01 << DECODER_4) | 0x30) //пустой сивол(отключеный индикатор)
+#define INDI_NULL ((0x01 << DECODER_2) | (0x01 << DECODER_4) | 0x30) //пустой символ(отключеный индикатор)
 #else
-#define INDI_NULL ((0x01 << DECODER_2) | (0x01 << DECODER_4)) //пустой сивол(отключеный индикатор)
+#define INDI_NULL ((0x01 << DECODER_2) | (0x01 << DECODER_4)) //пустой символ(отключеный индикатор)
+#endif
+
+#if DOTS_TYPE == 2
+#define DOTS_ALL (DOTS_NUM * 2) //всего разделительных точек
+#else
+#define DOTS_ALL (DOTS_NUM) //всего разделительных точек
 #endif
 
 //переменные работы с анимациями
@@ -84,7 +90,7 @@ boolean state_light = 1; //состояние сенсора яркости ос
 
 const uint8_t decoderMask[] = {DECODER_1, DECODER_2, DECODER_3, DECODER_4}; //порядок пинов дешефратора(0, 1, 2, 3)
 #if INDI_PORT_TYPE
-const uint8_t regMask[] = {((NEON_DOT == 1) && INDI_DOT_TYPE) ? DOT_1_PIN : ANODE_OFF, ANODE_1_PIN, ANODE_2_PIN, ANODE_3_PIN, ANODE_4_PIN, ANODE_5_PIN, ANODE_6_PIN}; //таблица бит анодов ламп
+const uint8_t regMask[] = {((NEON_DOT == 1) && INDI_DOT_TYPE) ? (0x01 << DOT_1_PIN) : ANODE_OFF, (0x01 << ANODE_1_PIN), (0x01 << ANODE_2_PIN), (0x01 << ANODE_3_PIN), (0x01 << ANODE_4_PIN), (0x01 << ANODE_5_PIN), (0x01 << ANODE_6_PIN)}; //таблица бит анодов ламп
 #endif
 
 uint8_t indi_dot_l; //буфер левых точек индикаторов
@@ -126,26 +132,32 @@ ISR(TIMER0_COMPA_vect) //динамическая индикация
 #if INDI_PORT_TYPE
   uint8_t temp = (indi_buf[indiState] != INDI_NULL) ? regMask[indiState] : ANODE_OFF; //включаем индикатор если не пустой символ
 #if DOTS_PORT_ENABLE == 2
-  if (indi_dot_l & indi_dot_pos) temp |= (0x01 << INDI_DOTL_BIT); //включаем левые точки
-#if DOTS_TYPE
-  if (indi_dot_r & indi_dot_pos) temp |= (0x01 << INDI_DOTR_BIT); //включаем правые точки
+#if (DOTS_TYPE == 1) || (DOTS_TYPE == 2)
+  if (indi_dot_r & indi_dot_pos) temp |= (0x01 << DOTR_PIN); //включаем правые точки
+#endif
+#if DOTS_TYPE != 1
+  if (indi_dot_l & indi_dot_pos) temp |= (0x01 << DOTL_PIN); //включаем левые точки
 #endif
 #endif
+
 #if (NEON_DOT == 2) && INDI_DOT_TYPE
   if (!indiState) {
-    if (indi_buf[indiState] & 0x80) temp |= (0x01 << DOT_1_BIT); //включили точки
-    if (indi_buf[indiState] & 0x40) temp |= (0x01 << DOT_2_BIT); //включили точки
+    if (indi_buf[indiState] & 0x80) temp |= (0x01 << DOT_1_PIN); //включили точки
+    if (indi_buf[indiState] & 0x40) temp |= (0x01 << DOT_2_PIN); //включили точки
   }
 #endif
+
   REG_LATCH_ENABLE; //включили защелку
   SPDR = temp; //загрузили данные
-#if (NEON_DOT == 1) && !INDI_DOT_TYPE
-  if (!indiState && (indi_buf[indiState] != INDI_NULL)) DOT_SET; //включили точки
-#elif (NEON_DOT == 2) && !INDI_DOT_TYPE
+#if !INDI_DOT_TYPE
+#if NEON_DOT == 1
+  if (!indiState && (indi_buf[indiState] != INDI_NULL)) DOT_1_SET; //включили точки
+#elif NEON_DOT == 2
   if (!indiState) {
     if (indi_buf[indiState] & 0x80) DOT_1_SET; //включили точки
     if (indi_buf[indiState] & 0x40) DOT_2_SET; //включили точки
   }
+#endif
 #endif
 #endif
 
@@ -173,9 +185,11 @@ ISR(TIMER0_COMPA_vect) //динамическая индикация
 #endif
 
 #if DOTS_PORT_ENABLE == 1
-  if (indi_dot_l & indi_dot_pos) INDI_DOTL_ON; //включаем левые точки
-#if DOTS_TYPE
+#if (DOTS_TYPE == 1) || (DOTS_TYPE == 2)
   if (indi_dot_r & indi_dot_pos) INDI_DOTR_ON; //включаем правые точки
+#endif
+#if DOTS_TYPE != 1
+  if (indi_dot_l & indi_dot_pos) INDI_DOTL_ON; //включаем левые точки
 #endif
 #endif
 
@@ -200,7 +214,7 @@ ISR(TIMER0_COMPB_vect) {
   REG_LATCH_ENABLE; //включили защелку
   SPDR = 0x00; //загрузили данные
 #if (NEON_DOT == 1) && !INDI_DOT_TYPE
-  if (!indiState) DOT_CLEAR; //выключили точки
+  if (!indiState) DOT_1_CLEAR; //выключили точки
 #elif (NEON_DOT == 2) && !INDI_DOT_TYPE
   if (!indiState) {
     DOT_1_CLEAR; //выключили точки
@@ -227,9 +241,11 @@ ISR(TIMER0_COMPB_vect) {
 
 #if DOTS_PORT_ENABLE
 #if DOTS_PORT_ENABLE == 1
-  INDI_DOTL_OFF; //выключаем левые точки
-#if DOTS_TYPE
+#if (DOTS_TYPE == 1) || (DOTS_TYPE == 2)
   INDI_DOTR_OFF; //выключаем правые точки
+#endif
+#if DOTS_TYPE != 1
+  INDI_DOTL_OFF; //выключаем левые точки
 #endif
 #endif
   indi_dot_pos <<= 1; //сместили текущей номер точек индикаторов
@@ -383,9 +399,11 @@ void indiInit(void) //инициализация индикаторов
   ANODE_INIT(ANODE_6_PIN); //инициализация анода 6
 #endif
 #if DOTS_PORT_ENABLE
-  INDI_DOTL_INIT; //инициализация левых разделительных точек в индикаторах
-#if DOTS_TYPE
+#if (DOTS_TYPE == 1) || (DOTS_TYPE == 2)
   INDI_DOTR_INIT; //инициализация правых разделительных точек в индикаторах
+#endif
+#if DOTS_TYPE != 1
+  INDI_DOTL_INIT; //инициализация левых разделительных точек в индикаторах
 #endif
 #endif
 #else
@@ -548,12 +566,14 @@ void indiClrDotR(uint8_t dot) //очистка разделительной то
 void indiSetDots(int8_t dot, uint8_t num) //установка разделительных точек
 {
   for (uint8_t pos = 0; pos < num; pos++) {
-    if ((uint8_t)dot < (DOTS_NUM * (DOTS_TYPE + 1))) { //если число в поле индикатора
-#if DOTS_TYPE
+    if ((uint8_t)dot < DOTS_ALL) { //если число в поле индикатора
+#if DOTS_TYPE == 2
       if (dot & 0x01) indiSetDotR(dot >> 1); //включаем правую точку
       else indiSetDotL(dot >> 1); //включаем левую точку
+#elif DOTS_TYPE == 1
+      indiSetDotR(dot); //включаем правую точку
 #else
-      indiSetDotL(dot); //включаем точку
+      indiSetDotL(dot); //включаем левую точку
 #endif
     }
     dot++;
@@ -562,9 +582,13 @@ void indiSetDots(int8_t dot, uint8_t num) //установка разделит�
 //-----------------------------Очистка разделительных точек----------------------------------------
 void indiClrDots(void) //очистка разделительных точек
 {
+#if DOTS_TYPE == 2
   indi_dot_l = 0x00; //выключаем левые точки
-#if DOTS_TYPE
   indi_dot_r = 0x00; //выключаем правые точки
+#elif DOTS_TYPE == 1
+  indi_dot_r = 0x00; //выключаем правые точки
+#else
+  indi_dot_l = 0x00; //выключаем левые точки
 #endif
 }
 //------------------------------------Печать чисел-------------------------------------------------
@@ -741,15 +765,23 @@ void dotSetBright(uint8_t _pwm) //установка яркости точек
 {
 #if (NEON_DOT == 3) && DOTS_PORT_ENABLE
   if (_pwm) {
+#if DOTS_TYPE == 1
+    indiSetDotR(1); //установка разделительной точки
+#else
     indiSetDotL(2); //установка разделительной точки
-#if DOTS_TYPE
+#endif
+#if DOTS_TYPE == 2
 #if LAMP_NUM > 4
     indiSetDotR(3); //установка разделительной точки
 #else
     indiSetDotR(1); //установка разделительной точки
 #endif
 #elif DOTS_NUM > 4
+#if DOTS_TYPE == 1
+    indiSetDotR(3); //установка разделительной точки
+#else
     indiSetDotL(4); //установка разделительной точки
+#endif
 #endif
   }
   else indiClrDots(); //очистка разделительных точек
@@ -766,7 +798,7 @@ void dotSetBright(uint8_t _pwm) //установка яркости точек
   if (_pwm) TCCR1A |= (0x01 << COM1A1); //подключаем D9
   else {
     TCCR1A &= ~(0x01 << COM1A1); //отключаем D9
-    DOT_CLEAR; //выключили точки
+    DOT_1_CLEAR; //выключили точки
   }
 #elif DOT_1_PIN == 10
   OCR1B = _pwm; //устанавливаем яркость точек
