@@ -400,8 +400,8 @@ void playerUpdate(void)
       case PLAYER_CMD_PLAY_TRACK_IN_FOLDER:
         if (!player.playbackMute) {
           reader.playerState = READER_INIT;
-          reader.playerFolder = player.playbackBuff[player.playbackStart++];
           reader.playerTrack = player.playbackBuff[player.playbackStart++];
+          reader.playerFolder = player.playbackBuff[player.playbackStart++];
 #if AMP_PORT_ENABLE
           if (!AMP_CHK) {
             AMP_ENABLE;
@@ -422,6 +422,12 @@ void playerUpdate(void)
         player.playbackStart++;
         if (buffer.dacVolume > 9) buffer.dacVolume = 0;
         break;
+#if AMP_PORT_ENABLE
+      case PLAYER_CMD_STOP:
+        if (!player.playbackMute) AMP_DISABLE;
+        player.playbackStart += 2;
+        break;
+#endif
       default: player.playbackStart += 2; break;
     }
 
