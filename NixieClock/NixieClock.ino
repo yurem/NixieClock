@@ -189,11 +189,9 @@ struct backlightData {
   uint8_t menuBright; //максимальная яркость подсветки в меню
   uint8_t mode_2_step; //шаг эффекта номер 2
   uint16_t mode_2_time; //время эффекта номер 2
-#if !DISABLE_SOME_BACKL_EFFECTS
   uint8_t mode_4_step; //шаг эффекта номер 4
   uint8_t mode_8_step; //шаг эффекта номер 6
   uint16_t mode_8_time; //время эффекта номер 6
-#endif
 } backl;
 
 //переменные обработки кнопок
@@ -347,21 +345,15 @@ enum {
 //перечисления анимаций перебора цифр
 enum {
   FLIP_BRIGHT, //плавное угасание и появление
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_ORDER_OF_NUMBERS, //перемотка по порядку числа
   FLIP_ORDER_OF_CATHODES, //перемотка по порядку катодов в лампе
-#endif
   FLIP_TRAIN, //поезд
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_RUBBER_BAND, //резинка
-#endif
   FLIP_GATES, //ворота
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_WAVE, //волна
   FLIP_HIGHLIGHTS, //блики
   FLIP_EVAPORATION, //испарение
   FLIP_SLOT_MACHINE, //игровой автомат
-#endif
   FLIP_EFFECT_NUM //максимум эффектов перелистывания
 };
 enum {
@@ -377,7 +369,6 @@ enum {
   BACKL_PULS, //дыхание
 #if BACKL_TYPE == 3
   BACKL_PULS_COLOR, //дыхание со сменой цвета при затухании
-#if !DISABLE_SOME_BACKL_EFFECTS
   BACKL_RUNNING_FIRE, //бегущий огонь
   BACKL_RUNNING_FIRE_COLOR, //бегущий огонь со сменой цвета
   BACKL_RUNNING_FIRE_RAINBOW, //бегущий огонь с радугой
@@ -390,7 +381,6 @@ enum {
   BACKL_RAINBOW, //радуга
   BACKL_CONFETTI, //конфетти
 #endif
-#endif
   BACKL_EFFECT_NUM //максимум эффектов подсветки
 };
 
@@ -399,9 +389,7 @@ enum {
   DOT_OFF, //выключена
   DOT_STATIC, //статичная
   DOT_MAIN_BLINK, //мигание раз в секунду
-#if !DISABLE_SOME_DOT_EFFECTS
   DOT_MAIN_DOOBLE_BLINK, //мигание два раза в секунду
-#endif
 #if NEON_DOT != 3
   DOT_PULS, //плавно мигает
 #endif
@@ -5334,7 +5322,6 @@ void changeFastSetBackl(void) //сменить режим анимации по�
       setLedBright(backl.maxBright ? backl.minBright : 0); //устанавливаем минимальную яркость
       setLedHue(fastSettings.backlColor, WHITE_ON); //устанавливаем статичный цвет
       break;
-#if !DISABLE_SOME_BACKL_EFFECTS
     case BACKL_RUNNING_FIRE:
       setLedBright(0); //устанавливаем минимальную яркость
       setLedHue(fastSettings.backlColor, WHITE_ON); //устанавливаем статичный цвет
@@ -5346,7 +5333,6 @@ void changeFastSetBackl(void) //сменить режим анимации по�
     case BACKL_SMOOTH_COLOR_CHANGE:
       setLedBright(backl.maxBright); //устанавливаем максимальную яркость
       break;
-#endif
 #else
     case BACKL_OFF: backlSetBright(0); break; //выключаем подсветку
     case BACKL_STATIC: backlSetBright(backl.maxBright); break; //включаем подсветку
@@ -5465,10 +5451,8 @@ uint8_t fastSetSwitch(void) //переключение быстрых настр
           switch (fastSettings.backlMode) {
             case BACKL_STATIC:
             case BACKL_PULS:
-#if !DISABLE_SOME_BACKL_EFFECTS
             case BACKL_RUNNING_FIRE:
             case BACKL_WAVE:
-#endif
               show = 1; //запустить анимацию
               mode = FAST_BACKL_COLOR;
               break;
@@ -6501,13 +6485,11 @@ void changeBright(void) //установка яркости от времени 
             setLedBright(backl.maxBright); //устанавливаем максимальную яркость
             setLedHue(fastSettings.backlColor, WHITE_ON); //устанавливаем статичный цвет
             break;
-#if !DISABLE_SOME_BACKL_EFFECTS
           case BACKL_SMOOTH_COLOR_CHANGE:
           case BACKL_RAINBOW:
           case BACKL_CONFETTI:
             setLedBright(backl.maxBright); //устанавливаем максимальную яркость
             break;
-#endif
         }
       }
       else clrLeds(); //выключили светодиоды
@@ -6526,12 +6508,10 @@ void changeBright(void) //установка яркости от времени 
         backl.mode_2_step = setBrightStep((uint16_t)backlNowBright * 2, BACKL_MODE_2_STEP_TIME, BACKL_MODE_2_TIME); //расчёт шага яркости
 
 #if BACKL_TYPE == 3
-#if !DISABLE_SOME_BACKL_EFFECTS
         backl.mode_4_step = ceil((float)backl.maxBright / (float)BACKL_MODE_4_TAIL / (float)BACKL_MODE_4_FADING); //расчёт шага яркости
         if (!backl.mode_4_step) backl.mode_4_step = 1; //если шаг слишком мал
         backl.mode_8_time = setBrightTime((uint16_t)backlNowBright * LAMP_NUM, BACKL_MODE_8_STEP_TIME, BACKL_MODE_8_TIME); //расчёт шага яркости
         backl.mode_8_step = setBrightStep((uint16_t)backlNowBright * LAMP_NUM, BACKL_MODE_8_STEP_TIME, BACKL_MODE_8_TIME); //расчёт шага яркости
-#endif
 #endif
       }
     }
@@ -6570,7 +6550,6 @@ void backlEffect(void) //анимация подсветки
             }
           }
           break;
-#if !DISABLE_SOME_BACKL_EFFECTS
         case BACKL_RUNNING_FIRE:
         case BACKL_RUNNING_FIRE_COLOR:
         case BACKL_RUNNING_FIRE_RAINBOW:
@@ -6652,7 +6631,6 @@ void backlEffect(void) //анимация подсветки
             setLedHue(backl.color, WHITE_OFF); //установили цвет
           }
           break;
-#endif
       }
     }
   }
@@ -6692,7 +6670,6 @@ void dotFlash(void) //мигание точек
             case 1: dotSetBright(0); dot.drive = 0; dot.update = 1; break; //выключаем точки
           }
           break;
-#if !DISABLE_SOME_DOT_EFFECTS
         case DOT_MAIN_DOOBLE_BLINK:
           if (dot.count & 0x01) dotSetBright(0); //выключаем точки
           else dotSetBright(dot.maxBright); //включаем точки
@@ -6703,7 +6680,6 @@ void dotFlash(void) //мигание точек
           }
           else _timer_ms[TMR_DOT] = DOT_MAIN_DOOBLE_TIME; //установили таймер
           break;
-#endif
 #if NEON_DOT != 3
         case DOT_PULS:
           if (!dot.drive) {
@@ -7190,7 +7166,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
         }
       }
       break;
-#if !DISABLE_SOME_FLIP_EFFECTS
     case FLIP_ORDER_OF_NUMBERS:
     case FLIP_ORDER_OF_CATHODES:
     case FLIP_SLOT_MACHINE:
@@ -7220,7 +7195,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
         }
       }
       break;
-#endif
   }
 
   _timer_ms[TMR_MS] = FLIP_TIMEOUT; //устанавливаем таймер
@@ -7237,7 +7211,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
       if (!indi.update) { //если пришло время обновить индикаторы
         indi.update = 1; //сбрасываем флаг
         animUpdateTime(); //обновляем буфер анимации текущего времени
-#if !DISABLE_SOME_FLIP_EFFECTS
         switch (mode) { //режим анимации перелистывания
           case FLIP_RUBBER_BAND: if (changeCnt) animPrintBuff(LAMP_NUM - changeNum, (LAMP_NUM + 6) - changeNum, changeNum); break; //вывод часов
           case FLIP_HIGHLIGHTS:
@@ -7249,7 +7222,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             for (uint8_t f = changeNum; f < LAMP_NUM; f++) changeBuffer[f] = animDecodeNum(anim.flipBuffer[f + 6]);
             break;
         }
-#endif
       }
     }
 
@@ -7279,7 +7251,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             _timer_ms[TMR_ANIM] = anim.timeBright; //устанавливаем таймер
           }
           break;
-#if !DISABLE_SOME_FLIP_EFFECTS
         case FLIP_ORDER_OF_NUMBERS:  //перемотка по порядку числа
         case FLIP_ORDER_OF_CATHODES: { //перемотка по порядку катодов в лампе
             changeIndi = LAMP_NUM; //загрузили буфер
@@ -7297,7 +7268,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             _timer_ms[TMR_ANIM] = (mode != FLIP_ORDER_OF_CATHODES) ? FLIP_MODE_3_TIME : FLIP_MODE_4_TIME; //устанавливаем таймер
           }
           break;
-#endif
         case FLIP_TRAIN: { //поезд
             if (changeIndi < (LAMP_NUM + FLIP_MODE_5_STEP - 1)) {
               indiClr(); //очистка индикатора
@@ -7309,7 +7279,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             else return; //выходим
           }
           break;
-#if !DISABLE_SOME_FLIP_EFFECTS
         case FLIP_RUBBER_BAND: { //резинка
             if (changeCnt < 2) {
               if (changeNum < LAMP_NUM) {
@@ -7345,7 +7314,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             else return; //выходим
           }
           break;
-#endif
         case FLIP_GATES: { //ворота
             if (changeIndi < 2) {
               if (changeNum < ((LAMP_NUM / 2) + 1)) {
@@ -7369,7 +7337,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
             else return; //выходим
           }
           break;
-#if !DISABLE_SOME_FLIP_EFFECTS
         case FLIP_WAVE: { //волна
             if (changeCnt < 2) {
               if (changeNum < LAMP_NUM) {
@@ -7462,7 +7429,6 @@ void flipIndi(uint8_t mode, uint8_t type) //анимация цифр
           }
           break;
         default: return; //неизвестная анимация
-#endif
       }
     }
   }
