@@ -189,11 +189,9 @@ struct backlightData {
   uint8_t menuBright; //максимальная яркость подсветки в меню
   uint8_t mode_2_step; //шаг эффекта номер 2
   uint16_t mode_2_time; //время эффекта номер 2
-#if !DISABLE_SOME_BACKL_EFFECTS
   uint8_t mode_4_step; //шаг эффекта номер 4
   uint8_t mode_8_step; //шаг эффекта номер 6
   uint16_t mode_8_time; //время эффекта номер 6
-#endif
 } backl;
 
 //переменные обработки кнопок
@@ -347,21 +345,15 @@ enum {
 //перечисления анимаций перебора цифр
 enum {
   FLIP_BRIGHT, //плавное угасание и появление
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_ORDER_OF_NUMBERS, //перемотка по порядку числа
   FLIP_ORDER_OF_CATHODES, //перемотка по порядку катодов в лампе
-#endif
   FLIP_TRAIN, //поезд
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_RUBBER_BAND, //резинка
-#endif
   FLIP_GATES, //ворота
-#if !DISABLE_SOME_FLIP_EFFECTS
   FLIP_WAVE, //волна
   FLIP_HIGHLIGHTS, //блики
   FLIP_EVAPORATION, //испарение
   FLIP_SLOT_MACHINE, //игровой автомат
-#endif
   FLIP_EFFECT_NUM //максимум эффектов перелистывания
 };
 enum {
@@ -399,9 +391,7 @@ enum {
   DOT_OFF, //выключена
   DOT_STATIC, //статичная
   DOT_MAIN_BLINK, //мигание раз в секунду
-#if !DISABLE_SOME_DOT_EFFECTS
   DOT_MAIN_DOOBLE_BLINK, //мигание два раза в секунду
-#endif
 #if NEON_DOT != 3
   DOT_PULS, //плавно мигает
 #endif
