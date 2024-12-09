@@ -369,7 +369,6 @@ enum {
   BACKL_PULS, //дыхание
 #if BACKL_TYPE == 3
   BACKL_PULS_COLOR, //дыхание со сменой цвета при затухании
-#if !DISABLE_SOME_BACKL_EFFECTS
   BACKL_RUNNING_FIRE, //бегущий огонь
   BACKL_RUNNING_FIRE_COLOR, //бегущий огонь со сменой цвета
   BACKL_RUNNING_FIRE_RAINBOW, //бегущий огонь с радугой
@@ -381,7 +380,6 @@ enum {
   BACKL_SMOOTH_COLOR_CHANGE, //плавная смена цвета
   BACKL_RAINBOW, //радуга
   BACKL_CONFETTI, //конфетти
-#endif
 #endif
   BACKL_EFFECT_NUM //максимум эффектов подсветки
 };
