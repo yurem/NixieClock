@@ -4,15 +4,15 @@
 #define AP_PASS "1234567890" //пароль точки доступа(минимум 8 символов)("" - открытая сеть)
 #define AP_CHANNEL 5 //канал точки доступа(1..13)
 
-#define SEND_DATA_PERIOD 0 //период отправки данных по умолчанию(0 - 5(мин) | 1 - 10(мин) | 2 - 15(мин) | 3 - 30(мин) | 4 - 60(мин))
+#define SEND_DATA_PERIOD 1 //период отправки данных по умолчанию(0 - 1(мин) | 1 - 5(мин) | 2 - 10(мин) | 3 - 15(мин) | 4 - 30(мин) | 5 - 60(мин))
 
-#define SETTINGS_MODE_TIME 30 //время работы точки доступа в режиме настройки(15..120)(сек)
+#define SETTINGS_MODE_TIME 60 //время работы точки доступа в режиме настройки(20..120)(сек)
 
 #define BAT_VOLTAGE_MIN 2500 //минимальное напряжение для расчета заряда батареи(2500..3000)(мВ)
 #define BAT_VOLTAGE_MAX 3000 //максимальное напряжение для расчета заряда батареи(3000..3500)(мВ)
 #define BAT_VOLTAGE_CORRECT 100 //коррекция напряжения для расчета заряда батареи(-200..200)(мВ)
 
-#define STATUS_LED 1 //индикации состояния(0 - выключить | 1 - включить)
+#define STATUS_LED 1 //индикация состояния(0 - выключить | 1 - включить)
 
 //   Плата:                                     SDA        SCL
 //   ESP-01.................................... GPIO0      GPIO2
@@ -40,23 +40,27 @@
 #define UI_MENU_TEXT_COLOR "#aaa" //цвет текста блоков меню веб интерфейса
 #define UI_MENU_WIFI_COLOR "#e67b09" //цвет блока меню уровень сигнала wifi веб интерфейса
 
-#define UI_BAR_BATTERY_COLOR GP_WHITE //цвет времени в статус баре
+#define UI_BAR_BATTERY_COLOR GP_WHITE //цвет заряда батареи в статус баре
 #define UI_BAR_TEMP_COLOR GP_GREEN //цвет температуры в статус баре
 #define UI_BAR_HUM_COLOR GP_BLUE //цвет влажности в статус баре
 #define UI_BAR_PRESS_COLOR GP_PINK //цвет давления в статус баре
 #define UI_BAR_LINE_COLOR GP_GRAY //цвет горизонтальной линии статус бара
 
 //Дополнительно
-#define DEBUG_MODE 0 //режим отладки прошивки(0 - выкл | 1 - вкл)
+#define DEBUG_MODE 0 //активация режима отладки прошивки(0 - выкл | 1 - вкл)
+#define SLEEP_MODE 1 //активация режима сна датчика(0 - выкл | 1 - вкл)
 
 #define MAX_CLOCK 4 //максимум часов для отправки данных(2..5)
 
-#define UDP_SEND_SIZE 16 //размер пакета данных(9)
+#define UDP_SEND_SIZE 16 //размер пакета данных(16)
 #define UDP_LOCAL_PORT 888 //локальный порт udp(888)
 #define UDP_CLOCK_PORT 8888 //порт udp часов(8888)
-#define UDP_BROADCAST_ADDR "255.255.255.255" //широковещательный адрес(255.255.255.255)
 
 #define UDP_WRITE_CMD 0xFF //команда отправки данных(0xFF)
 #define UDP_FOUND_CMD 0xCC //команда обнаружения датчика(0xCC)
+#define UDP_ANSWER_CMD 0xAA //команда ожидания ответа(0xAA)
 
-#define ESP_FIRMWARE_VERSION "1.1.5" //версия прошивки модуля esp
+#define UDP_ANSWER_SIZE 1 //размер пакета ответа(1)
+#define UDP_ANSWER_WAIT_TIME 1000 //время ожидания ответа(100..2000)(мс)
+
+#define ESP_FIRMWARE_VERSION "1.1.6" //версия прошивки модуля esp
