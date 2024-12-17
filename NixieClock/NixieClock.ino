@@ -369,6 +369,7 @@ enum {
   BACKL_PULS, //дыхание
 #if BACKL_TYPE == 3
   BACKL_PULS_COLOR, //дыхание со сменой цвета при затухании
+#if !DISABLE_SOME_BACKL_EFFECTS
   BACKL_RUNNING_FIRE, //бегущий огонь
   BACKL_RUNNING_FIRE_COLOR, //бегущий огонь со сменой цвета
   BACKL_RUNNING_FIRE_RAINBOW, //бегущий огонь с радугой
@@ -380,6 +381,7 @@ enum {
   BACKL_SMOOTH_COLOR_CHANGE, //плавная смена цвета
   BACKL_RAINBOW, //радуга
   BACKL_CONFETTI, //конфетти
+#endif
 #endif
   BACKL_EFFECT_NUM //максимум эффектов подсветки
 };
@@ -6691,7 +6693,6 @@ void dotFlash(void) //мигание точек
           }
           else _timer_ms[TMR_DOT] = DOT_MAIN_DOOBLE_TIME; //установили таймер
           break;
-#endif
 #if NEON_DOT != 3
         case DOT_PULS:
           if (!dot.drive) {
@@ -6706,6 +6707,7 @@ void dotFlash(void) //мигание точек
           }
           _timer_ms[TMR_DOT] = dot.brightTime; //установили таймер
           break;
+#endif
 #endif
 #if NEON_DOT == 2
         case DOT_MAIN_TURN_BLINK:
@@ -7529,7 +7531,9 @@ uint8_t mainScreen(void) //главный экран
 #endif
       indi.update = 1; //сбрасываем флаг
 
+#if !DISABLE_GLITCH
       glitchIndi(); //имитация глюков
+#endif
     }
 
 #if LAMP_NUM > 4
