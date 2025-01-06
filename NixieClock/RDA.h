@@ -101,6 +101,10 @@ void setPowerRDA(boolean _pwr)
   if (_pwr) AMP_ENABLE;
   else AMP_DISABLE;
 #endif
+#if AMP_RDA_PORT_ENABLE
+  if (_pwr) { DF_BUSY_OUT; AMP_ENABLE; }
+  else { DF_BUSY_INP; AMP_DISABLE; }
+#endif
 }
 //-------------------------------------Установить частоту радиостанции----------------------------------------
 void setFreqRDA(uint16_t _freq)
