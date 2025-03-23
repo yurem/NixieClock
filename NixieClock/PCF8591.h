@@ -38,16 +38,17 @@ bool readAnalogInputChannelsPCFImpl(void) //чтение аналоговых п
   }
 
   wireRead();
-  for (uint8_t i = 3; i >= 0; i++) {
+  for (uint8_t i = 4; i > 0; i--) {
     if (i == 0) {
-      ((uint8_t *)&analogInputChannelsPCF)[i] = wireReadEndByte();
+      ((uint8_t *)&analogInputChannelsPCF)[i - 1] = wireReadEndByte();
     } else {
-      ((uint8_t *)&analogInputChannelsPCF)[i] = wireRead();
+      ((uint8_t *)&analogInputChannelsPCF)[i - 1] = wireRead();
     }
   }
 
   return 1;
 }
+
 bool readAnalogInputChannelsPCF(void) { //чтение аналоговых портов ввода
   bool res = readAnalogInputChannelsPCFImpl();
 
